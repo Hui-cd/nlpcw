@@ -1,0 +1,56 @@
+	<!DOCTYPE html>
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta http-equiv="cache-control" content="no-cache,no-store">
+		<meta http-equiv="pragma" content="no-cache">
+		<meta http-equiv="expires" content="-1">
+		<meta name="author" content="University of Southampton" />
+		<meta name="copyright" content="University of Southampton, 1994 - 2017" />
+		<meta name="keywords" content="Shibboleth, Authentication, SSO, Login, Logon" />
+		<meta name="description" content="Shibboleth IdP Authentication" />
+		<link rel="home" type="text/html" href="http://www.southampton.ac.uk/" />
+		<link rel="copyright" type="text/html" href="http://www.southampton.ac.uk/inf/copyright.html" />
+		<link rel="Shortcut Icon" type="image/x-icon" href="//www.southampton.ac.uk/img/furniture/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="/idp/css/style.css"><style>.illustrationClass {background-image:url(/idp/images/login-main.jpg);}</style>
+		<title>Sign In</title>
+	</head>
+	<body dir="ltr" class="body">
+		<div id="noScript" style="position: static; width: 100%; height: 100%; z-index: 100; display: none;">
+			<h1>JavaScript required</h1>
+			<p>JavaScript is required. This web browser does not support JavaScript or JavaScript in this web browser is not enabled.</p>
+			<p>To find out if your web browser supports JavaScript or to enable JavaScript, see web browser help.</p>
+		</div>
+		<script type="text/javascript" language="JavaScript">
+			document.getElementById("noScript").style.display = "none";
+		</script>
+		<div id="fullPage">
+			<div id="brandingWrapper" class="float">
+				<div class="illustrationClass" id="branding"></div>
+			</div>
+			<div id="contentWrapper" class="float">
+				<div id="content">
+					<div id="header">
+						<img class="logoImage" id="companyLogo" src="/idp/images/logo.png" alt="University of Southampton">
+					</div>
+					<div id="workArea">
+						<div id="errorArea" class="groupMargin">
+							<h1>Stale Request</h1>
+							<p><p>You may be seeing this page because you used the Back button while browsing a secure web site or application. Alternatively, you may have mistakenly bookmarked the web login form instead of the actual web site you wanted to bookmark or used a link created by somebody else who made the same mistake.</p> <br/> <p>Left unchecked, this can cause errors on some browsers or result in you returning to the web site you tried to leave, so this page is presented instead.</p></p>
+							<br />
+							<p>Please try again. If you continue to experience problems, please contact <a href="//www.southampton.ac.uk/ithelp">ServiceLine</a>, telling them the above error message and what you were trying to do when the error occurred.</p>
+						</div>
+					</div>
+					<div id="footerPlaceholder"></div>
+				</div>
+				<div id="footer">
+					<div id="footerLinks" class="floatReverse">
+						<div><a id="home" class="pageLink" href="http://www.southampton.ac.uk/">Home</a><a id="privacy" class="pageLink" href="http://www.southampton.ac.uk/about/governance/regulations-policies-guidelines.page">Terms &amp; conditions</a><a id="helpDesk" class="pageLink" href="http://www.southampton.ac.uk/ithelp/">IT Help</a></div>
+					</div>
+				</div>
+			</div> 
+		</div>
+	</body>
+</html>
