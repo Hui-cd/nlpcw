@@ -2,7 +2,7 @@
   "CARDINAL": [
     "two",
     "three",
-    "one",
+    "one"
   ],
   "ORDINAL": [
     "first"
@@ -13,7 +13,7 @@
     "many years ago",
     "a month",
     "some days",
-    "one day",
+    "one day"
   ],
   "NORP": [
     "indians"

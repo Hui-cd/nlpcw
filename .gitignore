@@ -5,3 +5,4 @@ activity/regexgame.pdf
 activity/comp3225_SRL_QA_activity_text.txt
 src/__pycache__/lab_seq2seq_nmt_lib.cpython-310.pyc
 activity/comp3225_activity_intro_to_labs.txt
+comp3225_example_package/ontonotes_parsed.json

@@ -1,12 +1,8 @@
-﻿# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 ######################################################################
 #
 # (c) Copyright University of Southampton, 2021
-#
-# Copyright in this software belongs to University of Southampton,
-# Highfield, University Road, Southampton SO17 1BJ
 #
 # Created By : Stuart E. Middleton
 # Created Date : 2021/01/29
@@ -17,11 +13,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys, codecs, json, math, time, warnings, re, logging
-
-from sklearn.model_selection import RandomizedSearchCV
 warnings.simplefilter( action='ignore', category=FutureWarning )
 
-import nltk, numpy, scipy, sklearn, sklearn_crfsuite, sklearn_crfsuite.metrics
+import nltk, numpy, scipy
+import pandas as pd
+import pycrfsuite
 
 LOG_FORMAT = ('%(levelname) -s %(asctime)s %(message)s')
 logger = logging.getLogger( __name__ )
@@ -31,10 +27,6 @@ logger.info('logging started')
 from nltk.tokenize import word_tokenize
 from nltk.tokenize import sent_tokenize
 from nltk.tag import pos_tag
-import pandas as pd
-import sklearn_crfsuite
-import json
-import codecs
 
 def chapTOsen(chapter):
     sentence = sent_tokenize(chapter)
@@ -44,6 +36,7 @@ def sent_process(text):
     text = word_tokenize(text)
     text = pos_tag(text)
     return text
+
 def toWord(sent_index, word_indexes, sents):
     phs = []
     for index in word_indexes:
@@ -83,7 +76,6 @@ def sp_seqence(num_list):
 
 def get_label_ne(ne_label, data):
     for key in data.keys():
-        # 确保 ne_json[key] 是字典类型
         if isinstance(data[key], dict) and 'type' in data[key] and 'tokens' in data[key]:
             label_type = data[key]['type']
             label = data[key]['tokens']
@@ -91,25 +83,12 @@ def get_label_ne(ne_label, data):
                 ne_label[i] = label_type
     return ne_label
 
-# def get_label_ne(ne_features, ne_json):
-#     from collections.abc import Sequence
-#     for key in ne_json.keys():
-#         if isinstance(ne_json[key], Sequence):
-#             if 'type' in ne_json[key] and 'tokens' in ne_json[key]:
-#                 feature_type = ne_json[key]['type']
-#                 addes = ne_json[key]['tokens']
-#                 for i in addes:
-#                     ne_features[i] = feature_type
-#     return ne_features 
-
 def atrain_sentence(words, poses, ne_features):
     sentences = []
     for i in range(len(words)):
         sentences.append((words[i], poses[i], ne_features[i]))
     return sentences
 
-
-# build feature
 def word2features(sent, i):
     word = sent[i][0]
     postag = sent[i][1]
@@ -163,6 +142,8 @@ def sent2labels(sent):
 def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
+
+
 def get_N(predictions, test_sents):
     require_key = ['DATE', 'CARDINAL', 'ORDINAL', 'NORP','PERSON']
     result = {}
@@ -212,8 +193,8 @@ def get_N(predictions, test_sents):
 
     return result
 
-def exec_ner( file_chapter = None, ontonotes_file = None ) :
 
+def exec_ner( file_chapter = None, ontonotes_file = None ) :
     ins = []
     train_sets = []
     ontonotes = pd.read_json(ontonotes_file)
@@ -240,34 +221,47 @@ def exec_ner( file_chapter = None, ontonotes_file = None ) :
             ne_labels = get_label_ne(ne_labels, data['ne'])
             sentence = atrain_sentence(words, poses, ne_labels)
         train_sets.append(sentence)
-        
-    logger.info('train set size: {}'.format(len(train_sets)))
+
     X_train = [sent2features(s) for s in train_sets]
     y_train = [sent2labels(s) for s in train_sets]
-    logger.info('X_train size: {}'.format(len(X_train)))
-    logger.info('y_train size: {}'.format(len(y_train)))
-    logger.info('training start')
 
+    trainer = pycrfsuite.Trainer(verbose=False)
 
-    crf = sklearn_crfsuite.CRF(
-    algorithm='lbfgs',
-    c1=1.1,
-    c2=0.5,
-    max_iterations=200,
-    all_possible_transitions=True,
-    # verbose= True/
-)
-    try:
-        crf.fit(X_train, y_train)
-    except AttributeError:
-        pass
-    logger.info('training finished')
-    test_chapter = open(file_chapter).read()
-    test_sentences = chapTOsen(test_chapter)
-    test_sents = [sent_process(s) for s in test_sentences]
+    for xseq, yseq in zip(X_train, y_train):
+        trainer.append(xseq, yseq)
+
+    trainer.set_params({
+        'c1': 1.0,   # coefficient for L1 penalty
+        'c2': 1e-3,  # coefficient for L2 penalty
+        'max_iterations': 250,  # stop earlier
+
+        # include transitions that are possible, but not observed
+        'feature.possible_transitions': True
+    })
+
+    trainer.train('conll2002-esp.crfsuite')
+
+    logger.info('trained model')
+
+    tagger = pycrfsuite.Tagger()
+    tagger.open('conll2002-esp.crfsuite')
+
+    test_sents = []
+    test_file = pd.read_json(file_chapter)
+    for index, row in test_file.iterrows():
+        chapter = row['content']
+        sentences = chapTOsen(chapter)
+        for i in range(len(sentences)):
+            sentence = sentences[i]
+            sent_index = i
+            words = [x[0] for x in sent_process(sentence)]
+            poses = [x[1] for x in sent_process(sentence)]
+            test_sents.append(atrain_sentence(words, poses, ['O']*len(words)))
+
     X_test = [sent2features(s) for s in test_sents]
-    y_pred = crf.predict(X_test)
-    dictNE = get_N(y_pred, test_sents)
+    predictions = [tagger.tag(xseq) for xseq in X_test]
+
+    dictNE = get_N(predictions, test_sents)
     writeHandle = codecs.open( 'characters12.txt', 'w', 'utf-8', errors = 'replace' )
     if 'PERSON' in dictNE :
         for strNE in dictNE['PERSON'] :
@@ -287,5 +281,5 @@ if __name__ == '__main__':
 
 	# # DO NOT CHANGE THE CODE IN THIS FUNCTION
 
-	exec_ner('comp3225_example_package\eval_chapter.txt', 'comp3225_example_package\ontonotes_parsed.json' )
+	exec_ner(r'C:\Users\gyh14\nlp\comp3225_example_package\eval_chapter.txt', r'C:\Users\gyh14\nlp\comp3225_example_package\ontonotes_parsed.json' )
 

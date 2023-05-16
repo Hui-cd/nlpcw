@@ -26,26 +26,35 @@ logger = logging.getLogger( __name__ )
 logging.basicConfig( level=logging.INFO, format=LOG_FORMAT )
 logger.info('logging started')
 
-def exec_regex_toc( file_book = None ) :
 
-	# CHANGE BELOW CODE TO USE REGEX TO BUILD A TABLE OF CONTENTS FOR A BOOK (task 1)
 
-	# Input >> www.gutenberg.org sourced plain text file for a whole book
-	# Output >> toc.json = { <chapter_number_text> : <chapter_title_text> }
+def exec_regex_toc(file_book=None):
+    # Read the book content
+    text = codecs.open(file_book, "r", encoding="utf-8").read()
 
-	# hardcoded output to show exactly what is expected to be serialized
-	dictTOC = {
-			"1": "I AM BORN",
-			"2": "I OBSERVE",
-			"3": "I HAVE A CHANGE"
-		}
+    # Define regex patterns
+    patterns = [
+        r"^(?:CHAPTER|STAVE|Chapter|Book|BOOK|PART|Part|VOLUME)\s(\w+)\.?(?:\r\n(?:\r\n)?|\s*)((.*\s{2})+)",
+        r"^(\d+)\.\s+(_.*?\?*_)\s*$",
+        r"^([IVXLCDM]+)\s+(.*)"
+    ]
 
-	# DO NOT CHANGE THE BELOW CODE WHICH WILL SERIALIZE THE ANSWERS FOR THE AUTOMATED TEST HARNESS TO LOAD AND MARK
+    # Iterate through patterns and find matches
+    for pattern in patterns:
+        matches = re.findall(pattern, text, re.MULTILINE)
+        if matches:
+            break
 
-	writeHandle = codecs.open( 'toc.json', 'w', 'utf-8', errors = 'replace' )
-	strJSON = json.dumps( dictTOC, indent=2 )
-	writeHandle.write( strJSON + '\n' )
-	writeHandle.close()
+    # Process matches
+    dictTOC = {}
+    for match in matches:
+        chapterTitle = match[1].replace("\r\n", " ").replace("\r", "").rstrip()
+        dictTOC[match[0]] = chapterTitle
+    
+    writeHandle = codecs.open( 'toc.json', 'w', 'utf-8', errors = 'replace' )
+    strJSON = json.dumps( dictTOC, indent=2 )
+    writeHandle.write( strJSON + '\n' )
+    writeHandle.close()
 
 if __name__ == '__main__':
 	if len(sys.argv) < 4 :

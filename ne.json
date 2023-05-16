@@ -1,0 +1,21 @@
+{
+  "DATE": [
+    "many years ago",
+    "about a month",
+    "some days",
+    "saturday"
+  ],
+  "CARDINAL": [
+    "6",
+    "three",
+    "seven",
+    "two",
+    "one"
+  ],
+  "ORDINAL": [
+    "first"
+  ],
+  "NORP": [
+    "indians"
+  ]
+}
